@@ -55,12 +55,12 @@ def unpack_crack_archive(file_name:str, output_path:str = ".") -> None | str:
     
   
 
-def inject_crack_in_game(game_path:str = None) -> None:
+def inject_crack_in_game(game_path:str = None) -> None | str:
 
     if game_path == None:                                                       #если папка не задана, то по дефолту
         game_path = os.path.join(get_steam_path(), 
                                 "steamapps", "common",                      
-                                "HITMAN 3", "test") #Retail
+                                "HITMAN 3")#, "Retail") 
 
     crack_path   = "./crack"
     crack_folder = [
@@ -72,26 +72,33 @@ def inject_crack_in_game(game_path:str = None) -> None:
                     "GameOverlayRenderer.dll",                                 #файлы. Индекс 1
                     "GameOverlayRenderer64.dll",
                     "steamclient.dll",
-                    "steamclient64.dll"
+                    "steamclient64.dll",
+                    "hitman_launcher.exe"
                     ]
     ]
 
+    #os.makedirs( os.path.join(game_path, "Retail_Backup"), exist_ok = True )
 
-    if os.path.exists( game_path ):
-        crack_paths, crack_files = crack_folder[0], crack_folder[1]
 
-        for path in crack_paths:
-            shutil.copytree( 
-                            os.path.join(crack_path, path), 
-                            os.path.join(game_path,  path), 
-                            dirs_exist_ok=True
+
+    if os.path.exists( os.path.join(game_path, "Retail") ):                   #перенос файлов кряка в игру в папке Retail
+        try:
+            crack_paths, crack_files = crack_folder[0], crack_folder[1]
+
+            for path in crack_paths:
+                shutil.copytree( 
+                                os.path.join(crack_path, path), 
+                                os.path.join(game_path,  path), 
+                                dirs_exist_ok=True
+                                )
+
+            for file in crack_files:
+                shutil.copy( 
+                            os.path.join(crack_path, file), 
+                            os.path.join(game_path,  file), 
                             )
-
-        for file in crack_files:
-            shutil.copy( 
-                        os.path.join(crack_path, file), 
-                        os.path.join(game_path,  file), 
-                        )
+                
+        except Exception as e: return e
 
 
 
@@ -102,4 +109,4 @@ if __name__ == "__main__":
     #download_crack_from_github() 
     #unpack_crack_archive()
 
-    inject_crack_in_game()
+    print( inject_crack_in_game() )
