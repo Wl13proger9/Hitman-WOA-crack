@@ -1,2 +1,9 @@
 # Hitman WoA crack 2026
-working...
+
+### Fixed:  
+- console on startup
+- steam freeze on shutting down game
+
+### updated:
+- hitman launcher
+- steam launcher
