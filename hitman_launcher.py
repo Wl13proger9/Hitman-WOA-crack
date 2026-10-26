@@ -57,7 +57,7 @@ ab_path           = os.getcwd()                                             #п�
 
 peacock_path      = os.path.join(ab_path, 'peacock', 'PeacockPatcher.exe')  #взломанный патчер Peacock
 peacock_cmd_path  = os.path.join(ab_path, 'peacock', 'Start Server.cmd')    #взломанный сервер Peacock
-
+peacock_node_path = os.path.join(ab_path, 'peacock', 'nodedist', 'node.exe')#Nodejs Peacock
 
 game_path         = os.path.join(ab_path, 'steamclient_loader_x64.exe')     #взломанный клиент игры
 steam_game_path   = os.path.join(ab_path, 'HITMAN3.exe')                    #сама игра
@@ -99,9 +99,23 @@ def _update_ini(file_path:str, section:str, key:str, value:str) -> None:    #ф�
 
 
 
+# def _get_steamgame_pid(steam_game:str) -> str:                              #функция для взятия PID самой игры
+#     command = f"Get-Process -Name HITMAN3 | Where-Object {{ $_.Path -eq '{steam_game}' }} | Select-Object Id"
 
-def _get_steamgame_pid(steam_game:str) -> str:                              #функция для взятия PID самой игры
-    command = f"Get-Process -Name HITMAN3 | Where-Object {{ $_.Path -eq '{steam_game}' }} | Select-Object Id"
+#     result = subprocess.run(
+#         [ "powershell", "-Command", command ],                              #исполнение команды через Powershell
+#         capture_output=True,
+#         text=True,
+#         encoding="cp866",
+#         creationflags=CREATE_NO_WINDOW
+#         ).stdout
+
+#     return re.findall(r'\d+', result)[0]                                   #парсинг данных вывода
+
+
+
+def _get_procces_pid(process_name:str, procces_path:str) -> str:                              #функция для взятия PID самой игры
+    command = f"Get-Process -Name {process_name} | Where-Object {{ $_.Path -eq '{procces_path}' }} | Select-Object Id"
 
     result = subprocess.run(
         [ "powershell", "-Command", command ],                              #исполнение команды через Powershell
@@ -111,8 +125,8 @@ def _get_steamgame_pid(steam_game:str) -> str:                              #ф�
         creationflags=CREATE_NO_WINDOW
         ).stdout
 
+    print(result)
     return re.findall(r'\d+', result)[0]                                   #парсинг данных вывода
-
 
 def _startup() -> None:
     os.makedirs(launcher_settings, exist_ok=True)                          #создание папки настроек ланучера
@@ -120,6 +134,7 @@ def _startup() -> None:
 peacock= 
 server= 
 client= 
+nodejs=
 
 [GAME_PID]
 steam_game=
@@ -182,16 +197,26 @@ except:                                                                     #н�
 
 
 time.sleep(0.3)                                                             #очередное ожидание в 0.3 секунды
-pid_collection["steam_game"] = _get_steamgame_pid(steam_game_path) 
+pid_collection["steam_game"] = _get_procces_pid(
+    process_name = "HITMAN3",
+    procces_path = steam_game_path
+    ) 
+
+
+
+pid_collection["nodejs"] = _get_procces_pid(
+    process_name = "node",
+    procces_path = peacock_node_path
+    ) 
 
 
 
 if pid_collection:
-        print(pid_collection)                                                   #вывод коллекции PID
+        print(pid_collection)                                               #вывод коллекции PID
 
     #try:
         for k in pid_collection:
-            if k == "steam_game":break
+            if k == "steam_game":continue #break
             _update_ini(                                                    #запись PID <PeacockPatcher.exe>
                 file_path = os.path.join(launcher_settings, "PID_collections.ini"),
                 section   = "PID", 

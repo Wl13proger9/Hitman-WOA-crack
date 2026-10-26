@@ -108,13 +108,13 @@ server_proc     = psutil.Process(_check_ini( pid_collections_path, "PID", "serve
 peacock_proc    = psutil.Process(_check_ini( pid_collections_path, "PID", "peacock") )
 client_proc     = psutil.Process(_check_ini( pid_collections_path, "PID", "client") )  
 
+nodejs_proc     = psutil.Process(_check_ini( pid_collections_path, "PID", "nodejs") )  
 
 while True:
     time.sleep(2)
 
     try:
         if not steam_game_proc.is_running():
-
 
             if server_proc.is_running():
                 server_proc.terminate()  
@@ -129,7 +129,12 @@ while True:
             if client_proc.is_running():
                 client_proc.terminate()  
                 client_proc.kill() 
-       
+
+
+            if nodejs_proc.is_running():
+                nodejs_proc.terminate()  
+                nodejs_proc.kill() 
+                   
                            
             break    
     except Exception as e:pass
